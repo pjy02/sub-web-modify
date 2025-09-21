@@ -47,14 +47,14 @@ dns:
     - "*.test"
     - "+.3gppnetwork.org"
     - "+.xtracloud.net"
-  # 国内直连DNS - 用于中国大陆域名解析
+  # 国内直连DNS - 用于直连域名解析（国内域名）
   direct-nameserver:
     - https://doh.pub/dns-query
     - https://dns.alidns.com/dns-query
-  # 代理服务器DNS - 用于代理服务器本身的解析
+  # 代理服务器DNS - 用于代理服务器本身的解析（海外服务器）
   proxy-server-nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://dns.google/dns-query
+    - https://cloudflare-dns.com/dns-query
   # 主要DNS服务器 - 通过代理查询，防止泄露
   nameserver:
     - https://dns.google/dns-query

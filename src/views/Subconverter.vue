@@ -792,7 +792,7 @@ export default {
         clientType: "",
         customBackend: this.getUrlParam() == "" ? "https://url.v1.mk" : this.getUrlParam(),
         shortType: "https://v1.mk/short",
-        remoteConfig: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini",
+        remoteConfig: "https://raw.githubusercontent.com/pjy02/sub-web-modify/refs/heads/master/Surfing.ini",
         excludeRemarks: "",
         includeRemarks: "",
         filename: "",

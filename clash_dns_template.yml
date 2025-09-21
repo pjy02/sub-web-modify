@@ -121,3 +121,6 @@ proxies:
   - {name: 🇨🇳 瓦洛兰大陆, type: direct, udp: true}
   - {name: ⛔️ 拒绝连接, type: reject}
   - {name: 🌐 DNS_Hijack, type: dns}
+
+proxy-groups: ~
+rules: ~

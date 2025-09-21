@@ -24,7 +24,7 @@ tcp-concurrent: true
 log-level: silent
 find-process-mode: always
 global-client-fingerprint: chrome
-external-controller: 0.0.0.0:9090 # 切勿修改端口会影响状态栏磁贴
+external-controller: 127.0.0.1:9090 # 切勿修改端口会影响状态栏磁贴
 external-ui-url: "https://github.com/Zephyruso/zashboard/releases/latest/download/dist.zip"
 external-ui: "./Web/Zash/"
 secret: "" # 面板访问密码，如在公网访问建议设置
@@ -35,24 +35,6 @@ secret: "" # 面板访问密码，如在公网访问建议设置
 # —————————
 
 
-# 健康检查
-p: &p
-  type: http
-  interval: 86400
-  health-check:
-    enable: true
-    url: https://www.gstatic.com/generate_204
-    interval: 300
-  proxy: 🇨🇳 瓦洛兰大陆
-  header: # 如遇订阅加载不出来请切换ua
-      User-Agent:  # 使用注释法由上到下 默认使用第一个
-        - "clash-verge/v2.2.3"
-        - "ClashMetaForAndroid/2.11.2.Meta"
-        - "ClashforWindows/0.19.23"
-        - "clash.meta"
-        - "mihomo"
-
-# —————————
 
 # 节点记忆
 profile: # ← 此函数位置请勿变动！此为模块更新时备份恢复订阅变量范围 ↑

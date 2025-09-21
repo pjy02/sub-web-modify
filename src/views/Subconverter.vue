@@ -793,7 +793,7 @@ export default {
         clientType: "",
         customBackend: this.getUrlParam() == "" ? "https://subapi.239888.xyz" : this.getUrlParam(),
         shortType: "https://v1.mk/short",
-        remoteConfig: "https://raw.githubusercontent.com/pjy02/sub-web-modify/refs/heads/master/Surfing.ini",
+        remoteConfig: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing_with_icons.ini",
         excludeRemarks: "",
         includeRemarks: "",
         filename: "",

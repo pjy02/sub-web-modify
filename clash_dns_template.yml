@@ -43,7 +43,7 @@ p: &p
     enable: true
     url: https://www.gstatic.com/generate_204
     interval: 300
-  proxy: 订阅更新
+  proxy: 🇨🇳 瓦洛兰大陆
   header: # 如遇订阅加载不出来请切换ua
       User-Agent:  # 使用注释法由上到下 默认使用第一个
         - "clash-verge/v2.2.3"
@@ -118,9 +118,9 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 172.20.0.1/16
   fake-ip-filter:
-    - "RULE-SET:CN_域"
-    - "RULE-SET:Private_域"
-    - "RULE-SET:GoogleFCM_域"
+    - "+.lan"
+    - "+.local"
+    - "+.localhost"
     - "+.3gppnetwork.org"
     - "+.xtracloud.net"
   direct-nameserver:
@@ -129,10 +129,7 @@ dns:
   proxy-server-nameserver:
     - https://doh.pub/dns-query#🇨🇳 瓦洛兰大陆&h3=false
     - https://dns.alidns.com/dns-query#🇨🇳 瓦洛兰大陆&h3=true
-  nameserver-policy:
-    "RULE-SET:CN_域,Microsoft_域,Apple_域":
-       - https://doh.pub/dns-query#🇨🇳 瓦洛兰大陆&h3=false
-       - https://dns.alidns.com/dns-query#🇨🇳 瓦洛兰大陆&h3=true
+  nameserver-policy: {}
   nameserver:
     - https://dns.google/dns-query#DNS连接&h3=true
     - https://cloudflare-dns.com/dns-query#DNS连接&h3=true

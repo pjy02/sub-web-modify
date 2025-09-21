@@ -791,7 +791,7 @@ export default {
       form: {
         sourceSubUrl: "",
         clientType: "",
-        customBackend: this.getUrlParam() == "" ? "https://subapi.239888.xyz" : this.getUrlParam(),
+        customBackend: this.getUrlParam() == "" ? "https://url.v1.mk" : this.getUrlParam(),
         shortType: "https://v1.mk/short",
         remoteConfig: "https://raw.githubusercontent.com/pjy02/sub-web-modify/refs/heads/master/Surfing.ini",
         excludeRemarks: "",

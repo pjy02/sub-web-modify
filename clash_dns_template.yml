@@ -38,39 +38,28 @@ dns:
   enhanced-mode: fake-ip
   fake-ip-range: 172.20.0.1/16
   fake-ip-filter:
-    - "*.lan"
-    - "*.local"
-    - "*.localhost"
-    - "*.localdomain"
-    - "*.example"
-    - "*.invalid"
-    - "*.test"
+    - "RULE-SET:CN_域"
+    - "RULE-SET:Private_域"
+    - "RULE-SET:GoogleFCM_域"
     - "+.3gppnetwork.org"
     - "+.xtracloud.net"
   # 国内直连DNS - 用于直连域名解析（国内域名）
   direct-nameserver:
-    - https://doh.pub/dns-query
-    - https://dns.alidns.com/dns-query
+    - https://doh.pub/dns-query#🇨🇳 瓦洛兰大陆&h3=false
+    - https://dns.alidns.com/dns-query#🇨🇳 瓦洛兰大陆&h3=true
   # 代理服务器DNS - 用于代理服务器本身的解析（海外服务器）
   proxy-server-nameserver:
-    - https://dns.google/dns-query
-    - https://cloudflare-dns.com/dns-query
+    - https://doh.pub/dns-query#🇨🇳 瓦洛兰大陆&h3=false
+    - https://dns.alidns.com/dns-query#🇨🇳 瓦洛兰大陆&h3=true
+  # DNS策略 - 特定域名使用特定DNS
+  nameserver-policy:
+    "RULE-SET:CN_域,Microsoft_域,Apple_域":
+       - https://doh.pub/dns-query#🇨🇳 瓦洛兰大陆&h3=false
+       - https://dns.alidns.com/dns-query#🇨🇳 瓦洛兰大陆&h3=true
   # 主要DNS服务器 - 通过代理查询，防止泄露
   nameserver:
-    - https://dns.google/dns-query
-    - https://cloudflare-dns.com/dns-query
-  # 备用DNS - 通过代理查询
-  fallback:
-    - https://1.1.1.1/dns-query
-    - https://8.8.8.8/dns-query
-    - tls://1.0.0.1:853
-    - tls://dns.google:853
-  fallback-filter:
-    geoip: true
-    geoip-code: CN
-    ipcidr:
-      - 240.0.0.0/4
-      - 0.0.0.0/32
+    - https://dns.google/dns-query#DNS连接&h3=true
+    - https://cloudflare-dns.com/dns-query#DNS连接&h3=true
 
 # 基础代理
 proxies:

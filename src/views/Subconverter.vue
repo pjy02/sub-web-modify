@@ -360,6 +360,10 @@ export default {
             label: "CM规则",
             options: [
               {
+                label: "Surfing 自定义规则 识别多地区分组",
+                value: "https://raw.githubusercontent.com/pjy02/sub-web-modify/refs/heads/master/Surfing.ini"
+              },
+              {
                 label: "CM_Online 默认版 识别港美地区(与Github同步)",
                 value: "https://raw.githubusercontent.com/cmliu/ACL4SSR/main/Clash/config/ACL4SSR_Online.ini"
               },

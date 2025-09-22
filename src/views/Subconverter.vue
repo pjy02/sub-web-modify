@@ -362,7 +362,7 @@ export default {
             options: [
               {
                 label: "Surfing 自定义规则 识别多地区分组",
-                value: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing_with_icons.ini"
+                value: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing.ini"
               },
               {
                 label: "CM_Online 默认版 识别港美地区(与Github同步)",
@@ -793,7 +793,7 @@ export default {
         clientType: "",
         customBackend: this.getUrlParam() == "" ? "https://subapi.239888.xyz" : this.getUrlParam(),
         shortType: "https://v1.mk/short",
-        remoteConfig: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing_with_icons.ini",
+        remoteConfig: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing.ini",
         excludeRemarks: "",
         includeRemarks: "",
         filename: "",

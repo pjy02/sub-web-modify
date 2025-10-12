@@ -362,6 +362,10 @@ export default {
             label: "CM规则",
             options: [
               {
+                label: "Surfing 无广告拦截规则",
+                value: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/SurfingNoAdBlock.ini"
+              },
+              {
                 label: "Surfing 自定义规则 识别多地区分组",
                 value: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing.ini"
               },
@@ -794,7 +798,7 @@ export default {
         clientType: "",
         customBackend: this.getUrlParam() == "" ? "https://subapi.239888.xyz" : this.getUrlParam(),
         shortType: "https://v1.mk/short",
-        remoteConfig: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing.ini",
+        remoteConfig: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/SurfingNoAdBlock.ini",
         excludeRemarks: "",
         includeRemarks: "",
         filename: "",

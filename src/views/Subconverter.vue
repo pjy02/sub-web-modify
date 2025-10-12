@@ -366,7 +366,7 @@ export default {
                 value: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/SurfingNoAdBlock.ini"
               },
               {
-                label: "Surfing 自定义规则 识别多地区分组",
+                label: "Surfing 自定义规则 识别多地区分组 (规则数量20w+)",
                 value: "https://raw.githubusercontent.com/pjy02/subconverter/refs/heads/master/base/config/Surfing.ini"
               },
               {

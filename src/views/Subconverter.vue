@@ -73,6 +73,12 @@
                     <el-form-item label="订阅命名:">
                       <el-input v-model="form.filename" placeholder="返回的订阅文件名，可以在支持文件名的客户端中显示出来" />
                     </el-form-item>
+                    <el-form-item label="分组覆盖:">
+                      <el-button type="primary" plain @click="groupDialogVisible = true">管理分组</el-button>
+                      <span class="group-count" v-if="form.groupOverrides.length">
+                        已配置 {{ form.groupOverrides.length }} 组
+                      </span>
+                    </el-form-item>
                     <el-form-item class="eldiy" label-width="0px">
                       <el-row type="flex">
                         <el-col>
@@ -140,6 +146,9 @@
                               <div style="margin-left: 35%">
                                 <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                               </div>
+                            </el-col>
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.autoGroupIcons" label="图标图片"></el-checkbox>
                             </el-col>
                           </el-row>
                           <el-button slot="reference">更多选项</el-button>
@@ -283,6 +292,44 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog title="自定义代理分组" :visible.sync="groupDialogVisible" width="80%" :close-on-click-modal="false"
+      :close-on-press-escape="false">
+      <div class="group-dialog-body">
+        <div v-if="!form.groupOverrides.length" class="group-empty">
+          当前没有自定义分组，点击下方“新增分组”按钮即可创建覆盖配置。
+        </div>
+        <div v-else>
+          <el-card v-for="(group, index) in form.groupOverrides" :key="group.id" class="group-card">
+            <div slot="header" class="clearfix">
+              <span>分组 {{ index + 1 }}</span>
+              <el-button type="text" icon="el-icon-delete" @click="removeGroup(index)">删除</el-button>
+            </div>
+            <el-form label-width="80px">
+              <el-form-item label="名称">
+                <el-input v-model="group.name" placeholder="例如：🎯 总模式"></el-input>
+              </el-form-item>
+              <el-form-item label="类型">
+                <el-input v-model="group.type" placeholder="如 select、url-test、fallback"></el-input>
+              </el-form-item>
+              <el-form-item label="图标URL">
+                <el-input v-model="group.icon" placeholder="可选，填写远程 SVG/PNG"></el-input>
+              </el-form-item>
+              <el-form-item label="其余参数">
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" v-model="group.optionsText"
+                  placeholder="每行一个 `[]节点` 或测试参数"></el-input>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
+      </div>
+      <div class="group-actions">
+        <el-button type="primary" @click="addGroup">新增分组</el-button>
+        <el-button type="danger" v-if="form.groupOverrides.length" @click="clearGroups">清空分组</el-button>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="groupDialogVisible = false">完 成</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -300,6 +347,57 @@ const tgBotLink = process.env.VUE_APP_BOT_LINK
 const yglink = process.env.VUE_APP_YOUTUBE_LINK
 const bzlink = process.env.VUE_APP_BILIBILI_LINK
 const downld = 'http://' + window.location.host + '/download.html'
+const groupIconMap = {
+  "总模式": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/All.svg",
+  "订阅更新": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Update.svg",
+  "小红书": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/XiaoHongShu.svg",
+  "抖音": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DouYin.svg",
+  "BiliBili": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/BiliBili.svg",
+  "Steam": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Steam.svg",
+  "Apple": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Apple.svg",
+  "Microsoft": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Microsoft.svg",
+  "Telegram": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg",
+  "电报消息": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg",
+  "Discord": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Discord.svg",
+  "Spotify": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Spotify.svg",
+  "TikTok": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/TikTok.svg",
+  "YouTube": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/YouTube.svg",
+  "Netflix": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Netflix.svg",
+  "Google": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Google.svg",
+  "GoogleFCM": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GoogleFCM.svg",
+  "Facebook": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Facebook.svg",
+  "OpenAI": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/OpenAI.svg",
+  "GitHub": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GitHub.svg",
+  "Twitter(X)": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Twitter.svg",
+  "DNS连接": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DNS.svg",
+  "漏网之鱼": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HBASE-copy.svg",
+  "广告拦截": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/No-ads-all.svg",
+  "WebRTC": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/WebRTC.svg",
+  "ALL·延迟最低": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "延迟最低": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "ALL·负载均衡": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "负载均衡": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "ALL·故障转移": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "故障转移": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "ALL·日本地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
+  "日本地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
+  "日本节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
+  "ALL·中国台湾": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
+  "中国台湾": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
+  "台湾节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
+  "ALL·中国香港地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
+  "中国香港地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
+  "香港节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
+  "ALL·美国地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
+  "美国地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
+  "美国节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
+  "ALL·狮城地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
+  "狮城地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
+  "狮城节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
+  "ALL·其它地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg",
+  "其它地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg",
+  "特殊地址": "https://cdn.jsdelivr.net/gh/MoGuangYu/Surfing@rm/Home/icon/User.svg",
+};
 export default {
   data() {
     return {
@@ -309,6 +407,7 @@ export default {
       // 是否为 PC 端
       isPC: true,
       btnBoolean: false,
+      groupDialogVisible: false,
       options: {
         clientTypes: {
           Clash: "clash",
@@ -819,6 +918,8 @@ export default {
         appendType: false,
         insert: false, // 是否插入默认订阅的节点，对应配置项 insert_url
         new_name: true, // 是否使用 Clash 新字段
+        autoGroupIcons: false,
+        groupOverrides: [],
         tpl: {
           surge: {
             doh: false // dns 查询是否使用 DoH
@@ -868,6 +969,21 @@ export default {
       lightMedia.addEventListener('change', callback);
       darkMedia.addEventListener('change', callback);
     } //监听系统主题，自动切换！
+  },
+  watch: {
+    'form.autoGroupIcons'(enabled) {
+      if (enabled) {
+        this.applyAutoIcons();
+      }
+    },
+    'form.groupOverrides': {
+      deep: true,
+      handler() {
+        if (this.form.autoGroupIcons) {
+          this.applyAutoIcons();
+        }
+      }
+    }
   },
   methods: {
     selectChanged() {
@@ -1021,6 +1137,10 @@ export default {
       if (this.form.sort) {
         this.customSubUrl +=
           "&sort=" + this.form.sort.toString();
+      }
+      const serializedGroups = this.serializeGroups();
+      if (serializedGroups) {
+        this.customSubUrl += "&groups=" + encodeURIComponent(serializedGroups);
       }
       this.customSubUrl +=
         "&emoji=" +
@@ -1189,6 +1309,11 @@ export default {
         if (param.get("rename")) {
           this.form.rename = param.get("rename");
         }
+        if (param.get("groups")) {
+          this.form.groupOverrides = this.parseGroups(param.get("groups"));
+        } else {
+          this.form.groupOverrides = [];
+        }
         if (param.get("interval")) {
           this.form.interval = Math.ceil(param.get("interval") / 86400);
         }
@@ -1264,6 +1389,10 @@ export default {
       data.append("sdoh", encodeURIComponent(this.form.tpl.surge.doh.toString()));
       data.append("cdoh", encodeURIComponent(this.form.tpl.clash.doh.toString()));
       data.append("newname", encodeURIComponent(this.form.new_name.toString()));
+      const serializedGroups = this.serializeGroups();
+      if (serializedGroups) {
+        data.append("groups", encodeURIComponent(serializedGroups));
+      }
       return data;
     },
     confirmUploadScript() {
@@ -1301,6 +1430,116 @@ export default {
           this.loading2 = false;
         })
     },
+    addGroup() {
+      this.form.groupOverrides.push(this.createEmptyGroup());
+    },
+    removeGroup(index) {
+      this.form.groupOverrides.splice(index, 1);
+    },
+    clearGroups() {
+      this.form.groupOverrides = [];
+    },
+    createEmptyGroup() {
+      return {
+        id: this.generateGroupId(),
+        name: "",
+        type: "",
+        icon: "",
+        optionsText: ""
+      };
+    },
+    generateGroupId() {
+      return `${Date.now()}-${Math.random()}`;
+    },
+    parseGroups(raw) {
+      if (!raw) {
+        return [];
+      }
+      return raw
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.startsWith("custom_proxy_group="))
+        .map(line => this.parseCustomProxyGroup(line))
+        .filter(group => group !== null);
+    },
+    parseCustomProxyGroup(line) {
+      const match = line.match(/^custom_proxy_group=(.+)$/);
+      if (!match) {
+        return null;
+      }
+      const segments = match[1].split('`');
+      if (segments.length < 2) {
+        return null;
+      }
+      const [name, type, ...rest] = segments;
+      let icon = "";
+      let options = rest;
+      if (options.length && options[0].startsWith("icon=")) {
+        icon = options[0].slice(5);
+        options = options.slice(1);
+      }
+      return {
+        id: this.generateGroupId(),
+        name,
+        type,
+        icon,
+        optionsText: options.join('\n')
+      };
+    },
+    serializeGroups() {
+      if (!this.form.groupOverrides.length) {
+        return "";
+      }
+      return this.form.groupOverrides
+        .map(group => this.serializeGroup(group))
+        .filter(line => line !== "")
+        .join('\n');
+    },
+    serializeGroup(group) {
+      if (!group.name || !group.type) {
+        return "";
+      }
+      const tokens = [`custom_proxy_group=${group.name}`, group.type];
+      const icon = group.icon || (this.form.autoGroupIcons ? this.getAutoIconUrl(group.name) : "");
+      if (icon) {
+        tokens.push(`icon=${icon}`);
+      }
+      tokens.push(...this.normalizeGroupOptions(group.optionsText));
+      return tokens.join('`');
+    },
+    normalizeGroupName(name) {
+      if (!name) {
+        return "";
+      }
+      return name.replace(/^[^A-Za-z0-9\u4e00-\u9fa5]+/, '').trim();
+    },
+    getAutoIconUrl(name) {
+      const normalized = this.normalizeGroupName(name);
+      if (!normalized) {
+        return "";
+      }
+      return groupIconMap[normalized] || "";
+    },
+    normalizeGroupOptions(text) {
+      if (!text) {
+        return [];
+      }
+      return text
+        .replace(/\r/g, '')
+        .split(/[\n`]+/)
+        .map(item => item.trim())
+        .filter(item => item.length > 0);
+    },
+    applyAutoIcons() {
+      this.form.groupOverrides.forEach(group => {
+        if (!group.icon) {
+          const autoIcon = this.getAutoIconUrl(group.name);
+          if (autoIcon) {
+            this.$set(group, 'icon', autoIcon);
+          }
+        }
+      });
+    },
     getBackendVersion() {
       this.$axios
         .get(
@@ -1320,3 +1559,32 @@ export default {
   }
 };
 </script>
+<style scoped>
+.group-count {
+  margin-left: 10px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.group-dialog-body {
+  max-height: 60vh;
+  overflow: auto;
+  padding-right: 10px;
+}
+
+.group-card {
+  margin-bottom: 15px;
+}
+
+.group-actions {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.group-empty {
+  text-align: center;
+  color: #909399;
+  padding: 20px 0;
+}
+</style>

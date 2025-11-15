@@ -73,6 +73,12 @@
                     <el-form-item label="订阅命名:">
                       <el-input v-model="form.filename" placeholder="返回的订阅文件名，可以在支持文件名的客户端中显示出来" />
                     </el-form-item>
+                    <el-form-item label="分组覆盖:">
+                      <el-button type="primary" plain @click="groupDialogVisible = true">管理分组</el-button>
+                      <span class="group-count" v-if="form.groupOverrides.length">
+                        已配置 {{ form.groupOverrides.length }} 组
+                      </span>
+                    </el-form-item>
                     <el-form-item class="eldiy" label-width="0px">
                       <el-row type="flex">
                         <el-col>
@@ -283,6 +289,44 @@
         </el-button>
       </div>
     </el-dialog>
+    <el-dialog title="自定义代理分组" :visible.sync="groupDialogVisible" width="80%" :close-on-click-modal="false"
+      :close-on-press-escape="false">
+      <div class="group-dialog-body">
+        <div v-if="!form.groupOverrides.length" class="group-empty">
+          当前没有自定义分组，点击下方“新增分组”按钮即可创建覆盖配置。
+        </div>
+        <div v-else>
+          <el-card v-for="(group, index) in form.groupOverrides" :key="group.id" class="group-card">
+            <div slot="header" class="clearfix">
+              <span>分组 {{ index + 1 }}</span>
+              <el-button type="text" icon="el-icon-delete" @click="removeGroup(index)">删除</el-button>
+            </div>
+            <el-form label-width="80px">
+              <el-form-item label="名称">
+                <el-input v-model="group.name" placeholder="例如：🎯 总模式"></el-input>
+              </el-form-item>
+              <el-form-item label="类型">
+                <el-input v-model="group.type" placeholder="如 select、url-test、fallback"></el-input>
+              </el-form-item>
+              <el-form-item label="图标URL">
+                <el-input v-model="group.icon" placeholder="可选，填写远程 SVG/PNG"></el-input>
+              </el-form-item>
+              <el-form-item label="其余参数">
+                <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" v-model="group.optionsText"
+                  placeholder="每行一个 `[]节点` 或测试参数"></el-input>
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </div>
+      </div>
+      <div class="group-actions">
+        <el-button type="primary" @click="addGroup">新增分组</el-button>
+        <el-button type="danger" v-if="form.groupOverrides.length" @click="clearGroups">清空分组</el-button>
+      </div>
+      <span slot="footer" class="dialog-footer">
+        <el-button @click="groupDialogVisible = false">完 成</el-button>
+      </span>
+    </el-dialog>
   </div>
 </template>
 <script>
@@ -309,6 +353,7 @@ export default {
       // 是否为 PC 端
       isPC: true,
       btnBoolean: false,
+      groupDialogVisible: false,
       options: {
         clientTypes: {
           Clash: "clash",
@@ -819,6 +864,7 @@ export default {
         appendType: false,
         insert: false, // 是否插入默认订阅的节点，对应配置项 insert_url
         new_name: true, // 是否使用 Clash 新字段
+        groupOverrides: [],
         tpl: {
           surge: {
             doh: false // dns 查询是否使用 DoH
@@ -1022,6 +1068,10 @@ export default {
         this.customSubUrl +=
           "&sort=" + this.form.sort.toString();
       }
+      const serializedGroups = this.serializeGroups();
+      if (serializedGroups) {
+        this.customSubUrl += "&groups=" + encodeURIComponent(serializedGroups);
+      }
       this.customSubUrl +=
         "&emoji=" +
         this.form.emoji.toString() +
@@ -1189,6 +1239,11 @@ export default {
         if (param.get("rename")) {
           this.form.rename = param.get("rename");
         }
+        if (param.get("groups")) {
+          this.form.groupOverrides = this.parseGroups(param.get("groups"));
+        } else {
+          this.form.groupOverrides = [];
+        }
         if (param.get("interval")) {
           this.form.interval = Math.ceil(param.get("interval") / 86400);
         }
@@ -1264,6 +1319,10 @@ export default {
       data.append("sdoh", encodeURIComponent(this.form.tpl.surge.doh.toString()));
       data.append("cdoh", encodeURIComponent(this.form.tpl.clash.doh.toString()));
       data.append("newname", encodeURIComponent(this.form.new_name.toString()));
+      const serializedGroups = this.serializeGroups();
+      if (serializedGroups) {
+        data.append("groups", encodeURIComponent(serializedGroups));
+      }
       return data;
     },
     confirmUploadScript() {
@@ -1301,6 +1360,92 @@ export default {
           this.loading2 = false;
         })
     },
+    addGroup() {
+      this.form.groupOverrides.push(this.createEmptyGroup());
+    },
+    removeGroup(index) {
+      this.form.groupOverrides.splice(index, 1);
+    },
+    clearGroups() {
+      this.form.groupOverrides = [];
+    },
+    createEmptyGroup() {
+      return {
+        id: this.generateGroupId(),
+        name: "",
+        type: "",
+        icon: "",
+        optionsText: ""
+      };
+    },
+    generateGroupId() {
+      return `${Date.now()}-${Math.random()}`;
+    },
+    parseGroups(raw) {
+      if (!raw) {
+        return [];
+      }
+      return raw
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.startsWith("custom_proxy_group="))
+        .map(line => this.parseCustomProxyGroup(line))
+        .filter(group => group !== null);
+    },
+    parseCustomProxyGroup(line) {
+      const match = line.match(/^custom_proxy_group=(.+)$/);
+      if (!match) {
+        return null;
+      }
+      const segments = match[1].split('`');
+      if (segments.length < 2) {
+        return null;
+      }
+      const [name, type, ...rest] = segments;
+      let icon = "";
+      let options = rest;
+      if (options.length && options[0].startsWith("icon=")) {
+        icon = options[0].slice(5);
+        options = options.slice(1);
+      }
+      return {
+        id: this.generateGroupId(),
+        name,
+        type,
+        icon,
+        optionsText: options.join('\n')
+      };
+    },
+    serializeGroups() {
+      if (!this.form.groupOverrides.length) {
+        return "";
+      }
+      return this.form.groupOverrides
+        .map(group => this.serializeGroup(group))
+        .filter(line => line !== "")
+        .join('\n');
+    },
+    serializeGroup(group) {
+      if (!group.name || !group.type) {
+        return "";
+      }
+      const tokens = [`custom_proxy_group=${group.name}`, group.type];
+      if (group.icon) {
+        tokens.push(`icon=${group.icon}`);
+      }
+      tokens.push(...this.normalizeGroupOptions(group.optionsText));
+      return tokens.join('`');
+    },
+    normalizeGroupOptions(text) {
+      if (!text) {
+        return [];
+      }
+      return text
+        .replace(/\r/g, '')
+        .split(/[\n`]+/)
+        .map(item => item.trim())
+        .filter(item => item.length > 0);
+    },
     getBackendVersion() {
       this.$axios
         .get(
@@ -1320,3 +1465,32 @@ export default {
   }
 };
 </script>
+<style scoped>
+.group-count {
+  margin-left: 10px;
+  color: #909399;
+  font-size: 12px;
+}
+
+.group-dialog-body {
+  max-height: 60vh;
+  overflow: auto;
+  padding-right: 10px;
+}
+
+.group-card {
+  margin-bottom: 15px;
+}
+
+.group-actions {
+  display: flex;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.group-empty {
+  text-align: center;
+  color: #909399;
+  padding: 20px 0;
+}
+</style>

@@ -147,6 +147,9 @@
                                 <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                               </div>
                             </el-col>
+                            <el-col :span="12">
+                              <el-checkbox v-model="form.autoGroupIcons" label="图标图片"></el-checkbox>
+                            </el-col>
                           </el-row>
                           <el-button slot="reference">更多选项</el-button>
                         </el-popover>
@@ -344,6 +347,57 @@ const tgBotLink = process.env.VUE_APP_BOT_LINK
 const yglink = process.env.VUE_APP_YOUTUBE_LINK
 const bzlink = process.env.VUE_APP_BILIBILI_LINK
 const downld = 'http://' + window.location.host + '/download.html'
+const groupIconMap = {
+  "总模式": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/All.svg",
+  "订阅更新": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Update.svg",
+  "小红书": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/XiaoHongShu.svg",
+  "抖音": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DouYin.svg",
+  "BiliBili": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/BiliBili.svg",
+  "Steam": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Steam.svg",
+  "Apple": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Apple.svg",
+  "Microsoft": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Microsoft.svg",
+  "Telegram": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg",
+  "电报消息": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg",
+  "Discord": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Discord.svg",
+  "Spotify": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Spotify.svg",
+  "TikTok": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/TikTok.svg",
+  "YouTube": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/YouTube.svg",
+  "Netflix": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Netflix.svg",
+  "Google": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Google.svg",
+  "GoogleFCM": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GoogleFCM.svg",
+  "Facebook": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Facebook.svg",
+  "OpenAI": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/OpenAI.svg",
+  "GitHub": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GitHub.svg",
+  "Twitter(X)": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Twitter.svg",
+  "DNS连接": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DNS.svg",
+  "漏网之鱼": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HBASE-copy.svg",
+  "广告拦截": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/No-ads-all.svg",
+  "WebRTC": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/WebRTC.svg",
+  "ALL·延迟最低": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "延迟最低": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "ALL·负载均衡": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "负载均衡": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "ALL·故障转移": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "故障转移": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
+  "ALL·日本地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
+  "日本地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
+  "日本节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
+  "ALL·中国台湾": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
+  "中国台湾": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
+  "台湾节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
+  "ALL·中国香港地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
+  "中国香港地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
+  "香港节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
+  "ALL·美国地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
+  "美国地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
+  "美国节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
+  "ALL·狮城地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
+  "狮城地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
+  "狮城节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
+  "ALL·其它地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg",
+  "其它地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg",
+  "特殊地址": "https://cdn.jsdelivr.net/gh/MoGuangYu/Surfing@rm/Home/icon/User.svg",
+};
 export default {
   data() {
     return {
@@ -864,6 +918,7 @@ export default {
         appendType: false,
         insert: false, // 是否插入默认订阅的节点，对应配置项 insert_url
         new_name: true, // 是否使用 Clash 新字段
+        autoGroupIcons: false,
         groupOverrides: [],
         tpl: {
           surge: {
@@ -914,6 +969,21 @@ export default {
       lightMedia.addEventListener('change', callback);
       darkMedia.addEventListener('change', callback);
     } //监听系统主题，自动切换！
+  },
+  watch: {
+    'form.autoGroupIcons'(enabled) {
+      if (enabled) {
+        this.applyAutoIcons();
+      }
+    },
+    'form.groupOverrides': {
+      deep: true,
+      handler() {
+        if (this.form.autoGroupIcons) {
+          this.applyAutoIcons();
+        }
+      }
+    }
   },
   methods: {
     selectChanged() {
@@ -1430,11 +1500,25 @@ export default {
         return "";
       }
       const tokens = [`custom_proxy_group=${group.name}`, group.type];
-      if (group.icon) {
-        tokens.push(`icon=${group.icon}`);
+      const icon = group.icon || (this.form.autoGroupIcons ? this.getAutoIconUrl(group.name) : "");
+      if (icon) {
+        tokens.push(`icon=${icon}`);
       }
       tokens.push(...this.normalizeGroupOptions(group.optionsText));
       return tokens.join('`');
+    },
+    normalizeGroupName(name) {
+      if (!name) {
+        return "";
+      }
+      return name.replace(/^[^A-Za-z0-9\u4e00-\u9fa5]+/, '').trim();
+    },
+    getAutoIconUrl(name) {
+      const normalized = this.normalizeGroupName(name);
+      if (!normalized) {
+        return "";
+      }
+      return groupIconMap[normalized] || "";
     },
     normalizeGroupOptions(text) {
       if (!text) {
@@ -1445,6 +1529,16 @@ export default {
         .split(/[\n`]+/)
         .map(item => item.trim())
         .filter(item => item.length > 0);
+    },
+    applyAutoIcons() {
+      this.form.groupOverrides.forEach(group => {
+        if (!group.icon) {
+          const autoIcon = this.getAutoIconUrl(group.name);
+          if (autoIcon) {
+            this.$set(group, 'icon', autoIcon);
+          }
+        }
+      });
     },
     getBackendVersion() {
       this.$axios

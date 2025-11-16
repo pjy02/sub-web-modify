@@ -310,7 +310,8 @@
                 <el-input v-model="group.type" placeholder="如 select、url-test、fallback"></el-input>
               </el-form-item>
               <el-form-item label="图标URL">
-                <el-input v-model="group.icon" placeholder="可选，填写远程 SVG/PNG"></el-input>
+                <el-input v-model="group.icon" placeholder="可选，填写远程 SVG/PNG"
+                  @input="onGroupIconInput(group)"></el-input>
               </el-form-item>
               <el-form-item label="其余参数">
                 <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" v-model="group.optionsText"
@@ -1383,6 +1384,7 @@ export default {
         name: "",
         type: "",
         icon: "",
+        autoIcon: false,
         optionsText: ""
       };
     },
@@ -1421,6 +1423,7 @@ export default {
         name,
         type,
         icon,
+        autoIcon: false,
         optionsText: options.join('\n')
       };
     },

@@ -346,57 +346,6 @@ const tgBotLink = process.env.VUE_APP_BOT_LINK
 const yglink = process.env.VUE_APP_YOUTUBE_LINK
 const bzlink = process.env.VUE_APP_BILIBILI_LINK
 const downld = 'http://' + window.location.host + '/download.html'
-const groupIconMap = {
-  "总模式": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/All.svg",
-  "订阅更新": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Update.svg",
-  "小红书": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/XiaoHongShu.svg",
-  "抖音": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DouYin.svg",
-  "BiliBili": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/BiliBili.svg",
-  "Steam": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Steam.svg",
-  "Apple": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Apple.svg",
-  "Microsoft": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Microsoft.svg",
-  "Telegram": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg",
-  "电报消息": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Telegram.svg",
-  "Discord": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Discord.svg",
-  "Spotify": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Spotify.svg",
-  "TikTok": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/TikTok.svg",
-  "YouTube": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/YouTube.svg",
-  "Netflix": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Netflix.svg",
-  "Google": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Google.svg",
-  "GoogleFCM": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GoogleFCM.svg",
-  "Facebook": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Facebook.svg",
-  "OpenAI": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/OpenAI.svg",
-  "GitHub": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/GitHub.svg",
-  "Twitter(X)": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Twitter.svg",
-  "DNS连接": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/DNS.svg",
-  "漏网之鱼": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HBASE-copy.svg",
-  "广告拦截": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/No-ads-all.svg",
-  "WebRTC": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/WebRTC.svg",
-  "ALL·延迟最低": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
-  "延迟最低": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
-  "ALL·负载均衡": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
-  "负载均衡": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
-  "ALL·故障转移": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
-  "故障转移": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Return.svg",
-  "ALL·日本地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
-  "日本地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
-  "日本节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/JP.svg",
-  "ALL·中国台湾": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
-  "中国台湾": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
-  "台湾节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/CN.svg",
-  "ALL·中国香港地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
-  "中国香港地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
-  "香港节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/HK.svg",
-  "ALL·美国地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
-  "美国地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
-  "美国节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/US.svg",
-  "ALL·狮城地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
-  "狮城地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
-  "狮城节点": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Singapore.svg",
-  "ALL·其它地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg",
-  "其它地区": "https://cdn.jsdelivr.net/gh/GitMetaio/Surfing@rm/Home/icon/Globe.svg",
-  "特殊地址": "https://cdn.jsdelivr.net/gh/MoGuangYu/Surfing@rm/Home/icon/User.svg",
-};
 export default {
   data() {
     return {
@@ -407,8 +356,6 @@ export default {
       isPC: true,
       btnBoolean: false,
       groupDialogVisible: false,
-      autoIconGroupCacheUrl: "",
-      autoIconGroupCache: [],
       options: {
         clientTypes: {
           Clash: "clash",
@@ -971,31 +918,6 @@ export default {
       darkMedia.addEventListener('change', callback);
     } //监听系统主题，自动切换！
   },
-  watch: {
-    async 'form.autoGroupIcons'(enabled) {
-      if (enabled) {
-        await this.ensureAutoGroupOverridesPopulated();
-      }
-    },
-    'form.groupOverrides': {
-      deep: true,
-      handler() {
-        if (this.form.autoGroupIcons) {
-          this.applyAutoIcons();
-        }
-      }
-    },
-    async 'form.remoteConfig'(newUrl, oldUrl) {
-      if (newUrl === oldUrl) {
-        return;
-      }
-      this.resetAutoIconCache();
-      if (this.form.autoGroupIcons) {
-        this.form.groupOverrides = [];
-        await this.ensureAutoGroupOverridesPopulated(true);
-      }
-    }
-  },
   methods: {
     selectChanged() {
       this.getBackendVersion();
@@ -1152,6 +1074,9 @@ export default {
       const serializedGroups = await this.buildSerializedGroups();
       if (serializedGroups) {
         this.customSubUrl += "&groups=" + encodeURIComponent(serializedGroups);
+      }
+      if (this.form.autoGroupIcons) {
+        this.customSubUrl += "&auto_group_icons=true";
       }
       this.customSubUrl +=
         "&emoji=" +
@@ -1404,6 +1329,9 @@ export default {
       if (serializedGroups) {
         data.append("groups", encodeURIComponent(serializedGroups));
       }
+      if (this.form.autoGroupIcons) {
+        data.append("auto_group_icons", "true");
+      }
       return data;
     },
     async confirmUploadScript() {
@@ -1513,24 +1441,11 @@ export default {
         return "";
       }
       const tokens = [`custom_proxy_group=${group.name}`, group.type];
-      if (this.shouldEmitIcon(group)) {
+      if (group.icon) {
         tokens.push(`icon=${group.icon}`);
       }
       tokens.push(...this.normalizeGroupOptions(group.optionsText));
       return tokens.join('`');
-    },
-    normalizeGroupName(name) {
-      if (!name) {
-        return "";
-      }
-      return name.replace(/^[^A-Za-z0-9\u4e00-\u9fa5]+/, '').trim();
-    },
-    getAutoIconUrl(name) {
-      const normalized = this.normalizeGroupName(name);
-      if (!normalized) {
-        return "";
-      }
-      return groupIconMap[normalized] || "";
     },
     normalizeGroupOptions(text) {
       if (!text) {
@@ -1542,108 +1457,8 @@ export default {
         .map(item => item.trim())
         .filter(item => item.length > 0);
     },
-    shouldEmitIcon(group) {
-      if (!group || !group.icon) {
-        return false;
-      }
-      return !group.autoIcon;
-    },
-    applyAutoIcons() {
-      this.form.groupOverrides.forEach(group => {
-        const suggestedIcon = this.getAutoIconUrl(group.name);
-        if (group.autoIcon) {
-          if (suggestedIcon) {
-            this.$set(group, 'icon', suggestedIcon);
-          } else {
-            this.$set(group, 'icon', '');
-            this.$set(group, 'autoIcon', false);
-          }
-          return;
-        }
-        if (!group.icon && suggestedIcon) {
-          this.$set(group, 'icon', suggestedIcon);
-          this.$set(group, 'autoIcon', true);
-        }
-      });
-    },
     async buildSerializedGroups() {
-      if (this.form.autoGroupIcons) {
-        await this.ensureAutoGroupOverridesPopulated();
-      }
       return this.serializeGroups();
-    },
-    async ensureAutoGroupOverridesPopulated(forceReload = false) {
-      if (!this.form.autoGroupIcons) {
-        return;
-      }
-      if (!forceReload && this.form.groupOverrides.length) {
-        this.applyAutoIcons();
-        return;
-      }
-      const cachedGroups = await this.loadRemoteGroupsFromCache(forceReload);
-      if (!cachedGroups.length) {
-        return;
-      }
-      this.form.groupOverrides = cachedGroups.map(group => this.cloneGroupDefinition(group));
-      this.applyAutoIcons();
-    },
-    async loadRemoteGroupsFromCache(forceReload = false) {
-      if (!forceReload && this.autoIconGroupCacheUrl === this.form.remoteConfig && this.autoIconGroupCache.length) {
-        return this.autoIconGroupCache;
-      }
-      const groups = await this.fetchRemoteConfigGroups();
-      if (!groups.length) {
-        return [];
-      }
-      this.autoIconGroupCacheUrl = this.form.remoteConfig;
-      this.autoIconGroupCache = groups.map(group => ({
-        name: group.name,
-        type: group.type,
-        icon: group.icon,
-        autoIcon: !!group.autoIcon,
-        optionsText: group.optionsText
-      }));
-      return this.autoIconGroupCache;
-    },
-    async fetchRemoteConfigGroups() {
-      if (!this.form.remoteConfig) {
-        return [];
-      }
-      try {
-        const response = await fetch(this.form.remoteConfig, { cache: 'no-cache' });
-        if (!response.ok) {
-          throw new Error(response.statusText || `${response.status}`);
-        }
-        const text = await response.text();
-        const groups = this.parseGroups(text);
-        if (!groups.length) {
-          this.$message.warning("自动图标：未在远程配置中找到 custom_proxy_group 项，无法注入图标");
-        }
-        return groups;
-      } catch (error) {
-        console.error('auto-icon fetch failed', error);
-        this.$message.warning("自动图标：读取远程配置失败，无法自动插入图标");
-        return [];
-      }
-    },
-    cloneGroupDefinition(group) {
-      return {
-        id: this.generateGroupId(),
-        name: group.name || "",
-        type: group.type || "",
-        icon: group.icon || "",
-        autoIcon: !!group.autoIcon,
-        optionsText: group.optionsText || ""
-      };
-    },
-    onGroupIconInput(group) {
-      if (group && group.autoIcon) {
-        this.$set(group, 'autoIcon', false);
-      }
-    },
-    resetAutoIconCache() {
-      this.autoIconGroupCache = [];
-      this.autoIconGroupCacheUrl = "";
     },
     getBackendVersion() {
       this.$axios

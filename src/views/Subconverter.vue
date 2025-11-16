@@ -310,7 +310,8 @@
                 <el-input v-model="group.type" placeholder="如 select、url-test、fallback"></el-input>
               </el-form-item>
               <el-form-item label="图标URL">
-                <el-input v-model="group.icon" placeholder="可选，填写远程 SVG/PNG"></el-input>
+                <el-input v-model="group.icon" placeholder="可选，填写远程 SVG/PNG"
+                  @input="onGroupIconInput(group)"></el-input>
               </el-form-item>
               <el-form-item label="其余参数">
                 <el-input type="textarea" :autosize="{ minRows: 3, maxRows: 6 }" v-model="group.optionsText"
@@ -1455,6 +1456,7 @@ export default {
         name: "",
         type: "",
         icon: "",
+        autoIcon: false,
         optionsText: ""
       };
     },
@@ -1493,6 +1495,7 @@ export default {
         name,
         type,
         icon,
+        autoIcon: false,
         optionsText: options.join('\n')
       };
     },
@@ -1510,9 +1513,8 @@ export default {
         return "";
       }
       const tokens = [`custom_proxy_group=${group.name}`, group.type];
-      const icon = group.icon || (this.form.autoGroupIcons ? this.getAutoIconUrl(group.name) : "");
-      if (icon) {
-        tokens.push(`icon=${icon}`);
+      if (this.shouldEmitIcon(group)) {
+        tokens.push(`icon=${group.icon}`);
       }
       tokens.push(...this.normalizeGroupOptions(group.optionsText));
       return tokens.join('`');
@@ -1540,13 +1542,27 @@ export default {
         .map(item => item.trim())
         .filter(item => item.length > 0);
     },
+    shouldEmitIcon(group) {
+      if (!group || !group.icon) {
+        return false;
+      }
+      return !group.autoIcon;
+    },
     applyAutoIcons() {
       this.form.groupOverrides.forEach(group => {
-        if (!group.icon) {
-          const autoIcon = this.getAutoIconUrl(group.name);
-          if (autoIcon) {
-            this.$set(group, 'icon', autoIcon);
+        const suggestedIcon = this.getAutoIconUrl(group.name);
+        if (group.autoIcon) {
+          if (suggestedIcon) {
+            this.$set(group, 'icon', suggestedIcon);
+          } else {
+            this.$set(group, 'icon', '');
+            this.$set(group, 'autoIcon', false);
           }
+          return;
+        }
+        if (!group.icon && suggestedIcon) {
+          this.$set(group, 'icon', suggestedIcon);
+          this.$set(group, 'autoIcon', true);
         }
       });
     },
@@ -1584,6 +1600,7 @@ export default {
         name: group.name,
         type: group.type,
         icon: group.icon,
+        autoIcon: !!group.autoIcon,
         optionsText: group.optionsText
       }));
       return this.autoIconGroupCache;
@@ -1615,8 +1632,14 @@ export default {
         name: group.name || "",
         type: group.type || "",
         icon: group.icon || "",
+        autoIcon: !!group.autoIcon,
         optionsText: group.optionsText || ""
       };
+    },
+    onGroupIconInput(group) {
+      if (group && group.autoIcon) {
+        this.$set(group, 'autoIcon', false);
+      }
     },
     resetAutoIconCache() {
       this.autoIconGroupCache = [];

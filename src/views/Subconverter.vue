@@ -143,9 +143,7 @@
                           </el-row>
                           <el-row :gutter="10">
                             <el-col :span="12">
-                              <div style="margin-left: 35%">
-                                <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
-                              </div>
+                              <el-checkbox v-model="form.tpl.singbox.ipv6" label="Sing-Box支持IPV6"></el-checkbox>
                             </el-col>
                             <el-col :span="12">
                               <el-checkbox v-model="form.autoGroupIcons" label="图标图片"></el-checkbox>

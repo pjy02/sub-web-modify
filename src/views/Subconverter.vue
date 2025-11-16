@@ -406,6 +406,8 @@ export default {
       isPC: true,
       btnBoolean: false,
       groupDialogVisible: false,
+      autoIconGroupCacheUrl: "",
+      autoIconGroupCache: [],
       options: {
         clientTypes: {
           Clash: "clash",
@@ -969,9 +971,9 @@ export default {
     } //监听系统主题，自动切换！
   },
   watch: {
-    'form.autoGroupIcons'(enabled) {
+    async 'form.autoGroupIcons'(enabled) {
       if (enabled) {
-        this.applyAutoIcons();
+        await this.ensureAutoGroupOverridesPopulated();
       }
     },
     'form.groupOverrides': {
@@ -980,6 +982,16 @@ export default {
         if (this.form.autoGroupIcons) {
           this.applyAutoIcons();
         }
+      }
+    },
+    async 'form.remoteConfig'(newUrl, oldUrl) {
+      if (newUrl === oldUrl) {
+        return;
+      }
+      this.resetAutoIconCache();
+      if (this.form.autoGroupIcons) {
+        this.form.groupOverrides = [];
+        await this.ensureAutoGroupOverridesPopulated(true);
       }
     }
   },
@@ -1077,7 +1089,7 @@ export default {
           window.open(advancedVideo);
         });
     },
-    makeUrl() {
+    async makeUrl() {
       if (this.form.sourceSubUrl === "" || this.form.clientType === "") {
         this.$message.error("订阅链接与客户端为必填项");
         return false;
@@ -1136,7 +1148,7 @@ export default {
         this.customSubUrl +=
           "&sort=" + this.form.sort.toString();
       }
-      const serializedGroups = this.serializeGroups();
+      const serializedGroups = await this.buildSerializedGroups();
       if (serializedGroups) {
         this.customSubUrl += "&groups=" + encodeURIComponent(serializedGroups);
       }
@@ -1367,7 +1379,7 @@ export default {
         this.$message.success("长/短链接已成功解析为订阅信息");
       })();
     },
-    renderPost() {
+    async renderPost() {
       let data = new FormData();
       data.append("target", encodeURIComponent(this.form.clientType));
       data.append("url", encodeURIComponent(this.form.sourceSubUrl));
@@ -1387,19 +1399,19 @@ export default {
       data.append("sdoh", encodeURIComponent(this.form.tpl.surge.doh.toString()));
       data.append("cdoh", encodeURIComponent(this.form.tpl.clash.doh.toString()));
       data.append("newname", encodeURIComponent(this.form.new_name.toString()));
-      const serializedGroups = this.serializeGroups();
+      const serializedGroups = await this.buildSerializedGroups();
       if (serializedGroups) {
         data.append("groups", encodeURIComponent(serializedGroups));
       }
       return data;
     },
-    confirmUploadScript() {
+    async confirmUploadScript() {
       if (this.form.sourceSubUrl.trim() === "") {
         this.$message.error("订阅链接不能为空");
         return false;
       }
       this.loading2 = true;
-      let data = this.renderPost();
+      let data = await this.renderPost();
       data.append("sortscript", encodeURIComponent(this.uploadScript));
       data.append("filterscript", encodeURIComponent(this.uploadFilter));
       this.$axios
@@ -1537,6 +1549,78 @@ export default {
           }
         }
       });
+    },
+    async buildSerializedGroups() {
+      if (this.form.autoGroupIcons) {
+        await this.ensureAutoGroupOverridesPopulated();
+      }
+      return this.serializeGroups();
+    },
+    async ensureAutoGroupOverridesPopulated(forceReload = false) {
+      if (!this.form.autoGroupIcons) {
+        return;
+      }
+      if (!forceReload && this.form.groupOverrides.length) {
+        this.applyAutoIcons();
+        return;
+      }
+      const cachedGroups = await this.loadRemoteGroupsFromCache(forceReload);
+      if (!cachedGroups.length) {
+        return;
+      }
+      this.form.groupOverrides = cachedGroups.map(group => this.cloneGroupDefinition(group));
+      this.applyAutoIcons();
+    },
+    async loadRemoteGroupsFromCache(forceReload = false) {
+      if (!forceReload && this.autoIconGroupCacheUrl === this.form.remoteConfig && this.autoIconGroupCache.length) {
+        return this.autoIconGroupCache;
+      }
+      const groups = await this.fetchRemoteConfigGroups();
+      if (!groups.length) {
+        return [];
+      }
+      this.autoIconGroupCacheUrl = this.form.remoteConfig;
+      this.autoIconGroupCache = groups.map(group => ({
+        name: group.name,
+        type: group.type,
+        icon: group.icon,
+        optionsText: group.optionsText
+      }));
+      return this.autoIconGroupCache;
+    },
+    async fetchRemoteConfigGroups() {
+      if (!this.form.remoteConfig) {
+        return [];
+      }
+      try {
+        const response = await fetch(this.form.remoteConfig, { cache: 'no-cache' });
+        if (!response.ok) {
+          throw new Error(response.statusText || `${response.status}`);
+        }
+        const text = await response.text();
+        const groups = this.parseGroups(text);
+        if (!groups.length) {
+          this.$message.warning("自动图标：未在远程配置中找到 custom_proxy_group 项，无法注入图标");
+        }
+        return groups;
+      } catch (error) {
+        console.error('auto-icon fetch failed', error);
+        this.$message.warning("自动图标：读取远程配置失败，无法自动插入图标");
+        return [];
+      }
+    },
+    cloneGroupDefinition(group) {
+      return {
+        id: this.generateGroupId(),
+        name: group.name || "",
+        type: group.type || "",
+        icon: group.icon || "",
+        optionsText: group.optionsText || ""
+      };
+    },
+    resetAutoIconCache() {
+      this.autoIconGroupCache = [];
+      this.autoIconGroupCacheUrl = "";
     },
     getBackendVersion() {
       this.$axios
